@@ -97,6 +97,7 @@ if __name__ == "__main__":
                 print(j.ip)
     #creating the intial state
     pygame.init()
+    pygame.display.set_caption("Morris Worm Demo")
     wormDisplay = pygame.display.set_mode([heightWidth,heightWidth])
     makeBackground(len(sample.networkComputers))
     theBackground = pygame.image.load("defaultBackground.png").convert()
