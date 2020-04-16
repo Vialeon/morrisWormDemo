@@ -25,7 +25,7 @@ class network:
     def exampleNetwork(self):
         while(True):
             try:
-                size = input("How large would you like your network x by x just input one number")
+                size = input("How large would you like your network x by x just input one number: ")
                 for x in range(int(size)):
                     self.networkComputers.append([])
                     for y in range(int(size)):
@@ -51,8 +51,37 @@ class network:
                     print("something went wrong initiating connections")
     #def initRandomConnections(self):
         #this will create random connections through certain Ip address'
-    def infectComputer(x,y):
-        self.networkComputers[y,x].timesInfected +=1
+    def infectComputer(self,x):
+        print(x)
+        self.networkComputers[x][x].timesInfected +=1
+
+def runTheSimulation(sample,heightWidth,wormDisplay):
+    totalKilled = 0
+    print("starting worm")
+    sample.infectComputer(int(heightWidth/120))
+    for x in range(100):
+        for i in range(len(sample.networkComputers)):
+            for j in range(len(sample.networkComputers[0])):
+                if(sample.networkComputers[i][j].timesInfected!=0 and sample.networkComputers[i][j].timesInfected<16):
+                    for k in range(-1,2):
+                        for y in range(-1,2):
+                            if(k!=0 or y!=0):
+                                if(rand.randint(0,6) == 3):
+                                    sample.networkComputers[(i+k)%(len(sample.networkComputers))][(j+y)%(len(sample.networkComputers))].timesInfected+=1
+
+                infections = sample.networkComputers[i][j].timesInfected
+                ip = sample.networkComputers[i][j].ip
+                mode,size,bytes,dead= makeComputerImage(infections,ip)
+                if(infections == 16):
+                    totalKilled+=dead
+                    sample.networkComputers[i][j].timesInfected+=1
+
+                toBlit = pygame.image.fromstring(bytes,size,mode)
+                wormDisplay.blit(toBlit,(j*60+5,i*60+5))
+                pygame.display.flip()
+                if(totalKilled>(50)):
+                    return x
+        clock.tick(2)
 
 
 if __name__ == "__main__":
@@ -80,7 +109,7 @@ if __name__ == "__main__":
         for j in range(len(sample.networkComputers[0])):
             infections = sample.networkComputers[i][j].timesInfected
             ip = sample.networkComputers[i][j].ip
-            mode,size,bytes = makeComputerImage(infections,ip)
+            mode,size,bytes,holder = makeComputerImage(infections,ip)
             toBlit = pygame.image.fromstring(bytes,size,mode)
             wormDisplay.blit(toBlit,(j*60+5,i*60+5))
             pygame.display.flip()
@@ -93,22 +122,49 @@ if __name__ == "__main__":
             break
         else:
             time.sleep(.5)
-
+    totalKilled = 0
     print("starting worm")
-    infectComputer(int(heightWidth/2),int(heightWidth/2))
+    print("iterations over network: ",runTheSimulation(sample,heightWidth,wormDisplay))
+    time.sleep(10)
+    if False:
+        sample.infectComputer(int(heightWidth/120))
+        for x in range(100):
+            for i in range(len(sample.networkComputers)):
+                for j in range(len(sample.networkComputers[0])):
+                    if(sample.networkComputers[i][j].timesInfected!=0 and sample.networkComputers[i][j].timesInfected<16):
+                        for x in range(-1,2):
+                            for y in range(-1,2):
+                                if(x!=0 or y!=0):
+                                    if(rand.randint(0,6) == 3):
+                                        sample.networkComputers[(i+x)%(len(sample.networkComputers))][(j+y)%(len(sample.networkComputers))].timesInfected+=1
+
+                    infections = sample.networkComputers[i][j].timesInfected
+                    ip = sample.networkComputers[i][j].ip
+                    mode,size,bytes,dead= makeComputerImage(infections,ip)
+                    totalKilled+=dead
+                    toBlit = pygame.image.fromstring(bytes,size,mode)
+                    wormDisplay.blit(toBlit,(j*60+5,i*60+5))
+                    pygame.display.flip()
+                    if(totalKilled>(len(sample.networkComputers)*len(sample.networkComputers))):
+                        print(x," iterations over network")
+                        x = 100
+                        i = len(sample.networkComputers)
+                        break
+            clock.tick(10)
+
+
+
 
     # to start it could be more like it's just that if the guy next to you is infected you have a 1/7 chance of being infected
-    for i in range(len(sample.networkComputers)):
-        for j in range(len(sample.networkComputers[0])):
+    #for i in range(len(sample.networkComputers)):
+        #for j in range(len(sample.networkComputers[0])):
 
 
     #try smtp if debug enabled then run command to open and run bug if succeeded the init should send a byte to some server/flip a switch
     #if that doesn't work try fingerd if the machine is VAX this succeeds if it not then it fails
     #if that doesn't work try rexec with the bunch of usernames you got from the the /etc/passwd file that has uncencryped usernames and the common passwords you've got
     #if that doesn't work try rsh.. search for trusted connections and connect to said hosts if from rhosts just pass the right user name along and replicate
-
-
-    ''' what I want to do is make the background, blit the computers into their positions
-    also possibly make it so that it is random whether a connection is made between
-    every howevermany computers. From there make a 'virus' that uses the different ideas
-    from the morris bug'''
+    #what I want to do is make the background, blit the computers into their positions
+    #also possibly make it so that it is random whether a connection is made between
+    #every howevermany computers. From there make a 'virus' that uses the different ideas
+    #from the morris bug
